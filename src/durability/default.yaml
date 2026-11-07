@@ -1,0 +1,1594 @@
+seed: 42
+data:
+  raw_json: data/raw/endomondoHR_proper.json
+  interim_dir: data/interim
+  processed_dir: data/processed
+  preprocessed_streams_dir: data/interim/preprocessed
+  preprocessed_activities: data/interim/preprocessed_activities.parquet
+  phase2_summary: outputs/tables/phase2_summary.csv
+  parameter_evidence: data/interim/parameter_evidence.parquet
+  indices_output: data/processed/indices.parquet
+  phase3_summary: outputs/tables/phase3_summary.csv
+  qc_activities: data/processed/qc_activities.parquet
+  gated_indices: data/processed/gated_indices.parquet
+  reliability_characteristics: data/interim/reliability_characteristics.parquet
+  reliability_sessions: data/processed/reliability_sessions.parquet
+  feature_history_evidence: data/interim/feature_history_evidence.parquet
+  features_output: data/processed/features.parquet
+  phase6_summary: outputs/tables/phase6_summary.csv
+  sequence_features: data/processed/sequence_features.parquet
+  cv_splits: data/processed/cv_splits.parquet
+  benchmark_predictions: data/processed/benchmark_predictions.parquet
+  schema_report: docs/schema_report.md
+  schema_report_mirror: outputs/tables/schema_report.md
+  schema_sample_records: 200
+  acceptance_reload_activities: 3
+  sports_keep:
+  - run
+  - treadmill running
+  sports_exclude_known:
+  - bike
+  - cycling
+  - mountain bike
+  - walk
+  - hiking
+  - swim
+  - indoor cycling
+  sequential_keys:
+  - timestamp
+  - heart_rate
+  - altitude
+  - latitude
+  - longitude
+  scalar_keys:
+  - id
+  - userId
+  - sport
+  - gender
+  - url
+  speed_field: derived_speed_ms
+  distance_field: derived_distance_km
+  speed_sanity_ms:
+  - 2.2
+  - 5.5
+  speed_smooth_window_s: 30
+  altitude_range_max_m: 3000
+  distance_speed_agreement_tol: 0.02
+  preprocess_progress_every: 1000
+  indices_progress_every: 1000
+  qc_progress_every: 1000
+  feature_progress_every: 1000
+outputs:
+  tables_dir: outputs/tables
+  figures_dir: outputs/figures
+  models_dir: outputs/models
+  reports_dir: outputs/reports
+  qc_waterfall: outputs/tables/qc_waterfall.csv
+  gate_sensitivity: outputs/tables/gate_sensitivity.csv
+  reliability: outputs/tables/reliability.csv
+  reliability_matching: outputs/tables/reliability_matching.csv
+  reliability_figure: outputs/figures/reliability_icc_vs_sessions.png
+  feature_manifest: outputs/tables/feature_manifest.csv
+  benchmark: outputs/tables/benchmark.csv
+  benchmark_folds: outputs/tables/benchmark_folds.csv
+  leakage_probe: outputs/tables/leakage_probe.csv
+  calibration: outputs/tables/calibration.csv
+  model_status: outputs/tables/model_status.csv
+  shap_importance: outputs/tables/shap_importance.csv
+  cold_start: outputs/tables/cold_start.csv
+  prediction_results_figure: outputs/figures/prediction_results_overview.png
+  model_comparison_figure: outputs/figures/model_comparison_by_target.png
+  training_curves_figure: outputs/figures/deep_training_curves.png
+  training_history: outputs/tables/deep_training_history.csv
+  exploratory_benchmark: outputs/tables/exploratory_benchmark.csv
+  exploratory_benchmark_folds: outputs/tables/exploratory_benchmark_folds.csv
+  exploratory_leakage_probe: outputs/tables/exploratory_leakage_probe.csv
+  exploratory_model_status: outputs/tables/exploratory_model_status.csv
+  exploratory_predictions: data/processed/exploratory_predictions.parquet
+resample:
+  grid_dt_s: 10
+  max_interp_gap_s: 60
+  coarse_sampling_threshold_s: 30
+  max_upsample_factor: 3
+gap:
+  gradient_clip: 0.3
+  multiplier_clip:
+  - 0.7
+  - 1.6
+  altitude_median_filter_s: 15
+  savgol_window_s: 31
+  savgol_polyorder: 2
+  min_horizontal_step_m: 0.5
+athlete_params:
+  min_preceding_activities: 10
+  hrmax_sustain_s: 10
+  hr_valid_range:
+  - 30
+  - 230
+  speed_valid_range:
+  - 0.0
+  - 12.0
+  cs_durations_min:
+  - 2
+  - 3
+  - 5
+  - 10
+  - 20
+  - 30
+  cs_min_durations: 4
+  cs_min_r2: 0.95
+indices:
+  trim_head_frac: 0.12
+  trim_tail_frac: 0.05
+  early_window:
+  - 0.12
+  - 0.24
+  late_window_frac: 0.12
+  onset_threshold: 1.025
+  onset_rolling_s: 300
+  drift_speed_tolerance: 0.05
+  cs_shift_min_durations: 3
+qc:
+  min_duration_min: 45
+  max_duration_min: 240
+  min_hr_coverage: 0.95
+  max_gap_speed_cv: 0.15
+  max_clipped_gradient_frac: 0.02
+gate:
+  drift_bpm_per_h: 2.0
+  magnitude: 1.03
+  sweep:
+    drift_bpm_per_h:
+    - 1.0
+    - 2.0
+    - 3.0
+    magnitude:
+    - 1.02
+    - 1.03
+    - 1.05
+validation:
+  twente_url: https://data.4tu.nl/file/efa64223-ba51-48fa-91be-53f0e48460b4/0ee8aa40-9067-45df-bff7-df69068dd82a
+  twente_raw_dir: data/raw/twente
+  twente_session: END
+  twente_moving_speed_min_ms: 0.5
+  twente_fade_retention_below: 1.0
+  twente_output: outputs/tables/gate_validation_twente.csv
+reliability:
+  min_sessions_per_athlete: 4
+  match_duration_tol: 0.2
+  match_speed_tol: 0.05
+  bootstrap_n: 2000
+  confidence_level: 0.95
+  target_icc: 0.9
+  spearman_brown_k:
+  - 1
+  - 2
+  - 3
+  - 5
+  - 8
+features:
+  early_window_frac: 0.4
+  history_windows_days:
+  - 7
+  - 28
+  - 90
+  acute_window_days: 7
+  chronic_window_days: 28
+  long_run_lookback_days: 28
+  intensity_history_days: 90
+  hr_zone_fractions:
+  - 0.7
+  - 0.9
+  parameter_trend_days: 90
+  min_slope_observations: 2
+  leakage_audit_activities: 25
+  leakage_probe_hr_offset_bpm: 20
+evaluate:
+  outer_folds: 5
+  inner_folds: 3
+  group_col: athlete_id
+  targets:
+  - magnitude
+  - onset
+  - retention
+  - drift
+  leakage_probe: true
+  leakage_r2_max: 0.1
+  metric_bootstrap_n: 1000
+  confidence_level: 0.95
+  calibration_bins: 10
+  shap_sample_rows: 500
+  n_jobs: 4
+models:
+  tier0:
+    riegel_exponent: 1.06
+  tier1_smyth_replication:
+    n_estimators: 5000
+    learning_rate: 0.005
+    max_depth: 3
+    lightgbm_num_leaves: 15
+  tier2:
+    sequence_length: 96
+    channels:
+    - heart_rate
+    - gap_speed
+    - gradient
+    - relative_time
+    hidden_size: 24
+    patch_length: 12
+    patch_stride: 6
+    attention_heads: 4
+    epochs: 6
+    inner_epochs: 3
+    batch_size: 128
+    learning_rate: 0.001
+    weight_decay: 0.0001
+  tier3_optional:
+  - chronos
+  - moment
+  - timesfm
+  tier3:
+    chronos_model_id: amazon/chronos-bolt-tiny
+    timesfm_model_id: google/timesfm-2.5-200m-pytorch
+    cold_start_history:
+    - 5
+    - 10
+    - 20
+    forecast_batch_size: 128
+    primary_targets:
+    - magnitude
+    - onset
+  exploratory:
+    model_names:
+    - elastic_net
+    - random_forest
+    - extra_trees
+    - hist_gradient_boosting
+    - catboost
+    elastic_net:
+      alpha: 0.01
+      l1_ratio: 0.2
+      max_iter: 10000
+    random_forest:
+      n_estimators: 300
+      min_samples_leaf: 5
+      max_features: sqrt
+    extra_trees:
+      n_estimators: 300
+      min_samples_leaf: 5
+      max_features: sqrt
+    hist_gradient_boosting:
+      max_iter: 300
+      learning_rate: 0.05
+      max_leaf_nodes: 15
+      l2_regularization: 0.1
+    catboost:
+      iterations: 500
+      learning_rate: 0.03
+      depth: 6
+      l2_leaf_reg: 3.0
+    ensembles:
+      tree_ensemble:
+      - catboost
+      - extra_trees
+      - hist_gradient_boosting
+      diverse_ensemble:
+      - elastic_net
+      - catboost
+      - extra_trees
+figures:
+  training_validation_fold: 0
+  training_diagnostic_models:
+  - tier2_tcn
+  - tier2_lstm
+  - tier2_patchtst
+  - tier2_itransformer
+experiments:
+  dataset_label: FitRec pilot
+  primary_model: tier1_lightgbm
+  primary_target: late_decoupling
+  magnitude_reconstruction_tolerance: 1.0e-10
+  bootstrap_n: 1000
+  confidence_level: 0.95
+  horizon_fractions:
+  - 0.0
+  - 0.1
+  - 0.2
+  - 0.3
+  - 0.4
+  horizon_equivalence_relative_mae: 0.05
+  future_session_counts:
+  - 1
+  - 3
+  - 5
+  - 8
+  permutation:
+    n_per_mechanism: 500
+    mechanisms:
+    - global
+    - within_athlete
+    - athlete_centered_residual
+    statistic: r_squared
+  expertise:
+    lower_quantile: 0.25
+    upper_quantile: 0.75
+    performance_feature: cs_ms_asof
+    exposure_feature: history_duration_h_90d
+    min_athletes_per_group: 20
+  feature_blocks:
+    early_prefixes:
+    - early_
+    prior_durability_prefixes:
+    - prior_gate_
+    athlete_parameter_columns:
+    - hrmax_bpm_asof
+    - cs_ms_asof
+    - dprime_m_asof
+    - cs_trend_ms_per_90d
+    - dprime_trend_m_per_90d
+    training_load_prefixes:
+    - history_volume_
+    - history_duration_
+    - history_hr_
+    - long_run_
+    - max_long_run_
+    - days_since_last_long_run
+    - acute_chronic_
+  outputs:
+    table_dir: outputs/tables/experiments
+    report_dir: outputs/reports/experiments
+    e1_predictions: data/processed/experiment_e1_predictions.parquet
+    e1_summary: outputs/tables/experiments/e1_strict_post40_summary.csv
+    e2_predictions: data/processed/experiment_e2_predictions.parquet
+    e2_summary: outputs/tables/experiments/e2_feature_ablation_summary.csv
+    e2_contrasts: outputs/tables/experiments/e2_feature_ablation_contrasts.csv
+    e3_null: data/processed/experiment_e3_permutation_null.parquet
+    e3_summary: outputs/tables/experiments/e3_permutation_summary.csv
+    e4_features: data/processed/experiment_e4_horizon_features.parquet
+    e4_predictions: data/processed/experiment_e4_horizon_predictions.parquet
+    e4_summary: outputs/tables/experiments/e4_prediction_horizon_summary.csv
+    e4_contrasts: outputs/tables/experiments/e4_prediction_horizon_contrasts.csv
+    e5_targets: data/processed/experiment_e5_future_targets.parquet
+    e5_predictions: data/processed/experiment_e5_future_predictions.parquet
+    e5_summary: outputs/tables/experiments/e5_future_aggregation_summary.csv
+    e5_reliability: outputs/tables/experiments/e5_future_aggregation_reliability.csv
+    e6_groups: data/processed/experiment_e6_expertise_groups.parquet
+    e6_summary: outputs/tables/experiments/e6_expertise_summary.csv
+    e6_performance: outputs/tables/experiments/e6_expertise_performance.csv
+    e6_transport: outputs/tables/experiments/e6_cross_group_transport.csv
+    experiment_status: outputs/tables/experiments/experiment_status.csv
+reliability_extensions:
+  e8:
+    session_counts:
+    - 1
+    - 2
+    - 3
+    - 5
+    - 8
+    minimum_blocks_per_athlete: 2
+    bootstrap_n: 1000
+  e9:
+    state_period_days: 30
+    bootstrap_n: 100
+    optimizers:
+    - lbfgs
+    - powell
+  e10:
+    early_windows:
+    - - 0.1
+      - 0.2
+    - - 0.12
+      - 0.24
+    - - 0.2
+      - 0.3
+    late_window_fracs:
+    - 0.1
+    - 0.12
+    - 0.2
+    - 0.25
+    onset_thresholds:
+    - 1.02
+    - 1.025
+    - 1.03
+    onset_rolling_s:
+    - 180
+    - 300
+    - 600
+    onset_diagnostics:
+    - sustained_to_end
+    - first_crossing_diagnostic
+    min_duration_min:
+    - 45
+    - 60
+    - 90
+    match_duration_tolerances:
+    - 0.1
+    - 0.2
+    - 0.3
+    match_speed_tolerances:
+    - 0.03
+    - 0.05
+    - 0.1
+    bootstrap_n: 500
+  outputs:
+    e8_blocks: data/processed/experiment_e8_reliability_blocks.parquet
+    e8_summary: outputs/tables/experiments/e8_empirical_reliability.csv
+    e8_figure: outputs/figures/e8_empirical_reliability.png
+    e9_bootstrap: data/processed/experiment_e9_variance_bootstrap.parquet
+    e9_summary: outputs/tables/experiments/e9_trait_state_variance.csv
+    e9_figure: outputs/figures/e9_trait_state_variance.png
+    e10_variant_indices: data/processed/experiment_e10_variant_indices.parquet
+    e10_summary: outputs/tables/experiments/e10_protocol_specification_curve.csv
+    e10_figure: outputs/figures/e10_protocol_specification_curve.png
+    status: outputs/tables/experiments/reliability_extension_status.csv
+    slide_data: outputs/tables/experiments/reliability_extensions_slide_data.json
+    report_dir: outputs/reports/experiments
+athlete_binary_classification:
+  sessions_per_block: 3
+  session_count_sensitivity:
+  - 1
+  - 2
+  - 3
+  - 5
+  - 8
+  outcome_indices:
+  - magnitude
+  - drift
+  - retention
+  lower_is_better:
+  - magnitude
+  - drift
+  higher_is_better:
+  - retention
+  outer_folds: 5
+  bootstrap_n: 1000
+  confidence_level: 0.95
+  logistic_c: 1.0
+  hist_gradient_boosting:
+    max_iter: 200
+    learning_rate: 0.05
+    max_leaf_nodes: 15
+    l2_regularization: 0.1
+  random_forest:
+    n_estimators: 500
+    min_samples_leaf: 5
+    max_features: sqrt
+  extra_trees:
+    n_estimators: 500
+    min_samples_leaf: 5
+    max_features: sqrt
+  rbf_svm:
+    c: 1.0
+    gamma: scale
+  catboost:
+    iterations: 300
+    learning_rate: 0.03
+    depth: 5
+    l2_leaf_reg: 3.0
+  within_session:
+    observed_fraction: 0.4
+    target: conjunctive_gate_pass
+    outer_folds: 5
+    bootstrap_n: 1000
+  outputs:
+    examples: data/processed/experiment_e11_athlete_binary_examples.parquet
+    predictions: data/processed/experiment_e11_athlete_binary_predictions.parquet
+    summary: outputs/tables/experiments/e11_athlete_binary_summary.csv
+    figure: outputs/figures/e11_athlete_binary_classification.png
+    one_session_figure: outputs/figures/e11_one_session_classification.png
+    sensitivity_predictions: data/processed/experiment_e11_session_count_sensitivity_predictions.parquet
+    sensitivity_summary: outputs/tables/experiments/e11_session_count_sensitivity.csv
+    sensitivity_figure: outputs/figures/e11_session_count_sensitivity.png
+    within_session_examples: data/processed/experiment_e11_within_session_examples.parquet
+    within_session_predictions: data/processed/experiment_e11_within_session_predictions.parquet
+    within_session_summary: outputs/tables/experiments/e11_within_session_summary.csv
+    within_session_figure: outputs/figures/e11_within_session_classification.png
+    within_session_report: outputs/reports/experiments/E11_ATHLETE_BINARY_CLASSIFICATION.md
+    report: outputs/reports/experiments/E11_CROSS_SESSION_SUBANALYSIS.md
+two_stage_prediction:
+  target: drift
+  primary_min_prior_sessions: 3
+  prior_session_sensitivity:
+  - 1
+  - 3
+  - 5
+  - 8
+  shrinkage_strengths:
+  - 1.0
+  - 3.0
+  - 5.0
+  - 10.0
+  - 20.0
+  baseline_methods:
+  - historical_mean
+  - historical_median
+  - shrinkage
+  residual_model: tier1_lightgbm
+  exclude_target_prior_feature: prior_gate_drift_mean_bpm_h
+  cold_start_exclude_prefixes:
+  - prior_gate_
+  bootstrap_n: 1000
+  confidence_level: 0.95
+  outputs:
+    history: data/processed/experiment_e12_history.parquet
+    predictions: data/processed/experiment_e12_two_stage_predictions.parquet
+    summary: outputs/tables/experiments/e12_two_stage_summary.csv
+    contrasts: outputs/tables/experiments/e12_two_stage_contrasts.csv
+    sensitivity: outputs/tables/experiments/e12_two_stage_history_sensitivity.csv
+    leakage_probe: outputs/tables/experiments/e12_two_stage_leakage_probe.csv
+    report: outputs/reports/experiments/E12_TWO_STAGE_PREDICTION.md
+two_stage_subgroups:
+  challenger: two_stage_shrinkage_lightgbm
+  reference: direct_lightgbm
+  history_boundaries:
+  - 5
+  - 8
+  history_labels:
+  - 3–4
+  - 5–7
+  - ≥8
+  quantiles:
+  - 0.3333333333333333
+  - 0.6666666666666666
+  quantile_labels:
+  - low
+  - middle
+  - high
+  factors:
+    prior_variability: target_history_sd
+    athlete_baseline: baseline
+    training_duration_28d: history_duration_h_28d
+  bootstrap_n: 5000
+  confidence_level: 0.95
+  minimum_athletes: 20
+  fdr_alpha: 0.05
+  outputs:
+    paired: data/processed/experiment_e13_paired_errors.parquet
+    memberships: data/processed/experiment_e13_subgroups.parquet
+    thresholds: outputs/tables/experiments/e13_training_thresholds.csv
+    summary: outputs/tables/experiments/e13_subgroup_summary.csv
+    interactions: outputs/tables/experiments/e13_subgroup_interactions.csv
+    figure: outputs/figures/e13_subgroup_forest.png
+    report: outputs/reports/experiments/E13_TWO_STAGE_SUBGROUPS.md
+level_change_prediction:
+  model: tier1_lightgbm
+  bootstrap_n: 5000
+  confidence_level: 0.95
+  fdr_alpha: 0.05
+  early_column: observed_early_reference
+  late_column: target_late_decoupling
+  magnitude_column: target_magnitude
+  parameter_audit_scales:
+  - 0.5
+  - 1.0
+  - 2.0
+  identity_tolerance: 1.0e-10
+  leakage_shuffle: within_athlete
+  outputs:
+    predictions: data/processed/experiment_e14_level_change_predictions.parquet
+    summary: outputs/tables/experiments/e14_level_change_summary.csv
+    contrasts: outputs/tables/experiments/e14_level_change_contrasts.csv
+    folds: outputs/tables/experiments/e14_fold_calibration.csv
+    leakage: outputs/tables/experiments/e14_change_leakage_probe.csv
+    parameter_audit: outputs/tables/experiments/e14_normalization_identity.csv
+    figure: outputs/figures/e14_level_change_comparison.png
+    report: outputs/reports/experiments/E14_LEVEL_VS_CHANGE.md
+quality_cohort_prediction:
+  min_duration_min: 90
+  max_duration_min: 240
+  max_gap_speed_cv: 0.1
+  min_hr_coverage: 0.99
+  max_clipped_gradient_fraction: 0.01
+  require_gap_available: true
+  exclude_gap_split: true
+  minimum_train_athletes: 20
+  minimum_test_athletes: 5
+  bootstrap_n: 5000
+  confidence_level: 0.95
+  fdr_alpha: 0.05
+  outputs:
+    cohort: data/processed/experiment_e15_quality_cohort.parquet
+    predictions: data/processed/experiment_e15_quality_predictions.parquet
+    summary: outputs/tables/experiments/e15_quality_summary.csv
+    contrasts: outputs/tables/experiments/e15_quality_contrasts.csv
+    selection: outputs/tables/experiments/e15_selection_flow.csv
+    training: outputs/tables/experiments/e15_training_counts.csv
+    leakage: outputs/tables/experiments/e15_quality_leakage_probe.csv
+    figure: outputs/figures/e15_quality_comparison.png
+    report: outputs/reports/experiments/E15_THEORY_ALIGNED_QUALITY.md
+synthetic_augmentation:
+  method: constrained_c_mixup
+  synthetic_ratios:
+  - 1
+  - 3
+  seed_offsets:
+  - 0
+  - 100
+  - 200
+  beta_alpha: 2.0
+  lambda_bounds:
+  - 0.1
+  - 0.9
+  label_bandwidth_sd_fraction: 0.5
+  pair_distance_quantile: 0.75
+  same_athlete_only: true
+  match_missingness: true
+  min_eligible_pairs: 5
+  numerical_tolerance: 1.0e-08
+  max_attempt_multiplier: 30
+  inner_folds: 3
+  count_columns:
+  - history_activity_count
+  - long_run_count_28d
+  - prior_gate_pass_count
+  - early_n_samples
+  binary_columns:
+  - early_temperature_available
+  - early_humidity_available
+  bootstrap_n: 5000
+  confidence_level: 0.95
+  fdr_alpha: 0.05
+  outputs:
+    predictions: data/processed/experiment_e16_synthetic_predictions.parquet
+    synthetic: data/processed/experiment_e16_synthetic_training.parquet
+    ancestry: data/processed/experiment_e16_synthetic_ancestry.parquet
+    summary: outputs/tables/experiments/e16_synthetic_summary.csv
+    contrasts: outputs/tables/experiments/e16_synthetic_contrasts.csv
+    audit: outputs/tables/experiments/e16_synthetic_audit.csv
+    distribution: outputs/tables/experiments/e16_distribution_diagnostics.csv
+    tuning: outputs/tables/experiments/e16_inner_selection.csv
+    stability: outputs/tables/experiments/e16_seed_stability.csv
+    leakage: outputs/tables/experiments/e16_synthetic_leakage_probe.csv
+    figure: outputs/figures/e16_synthetic_comparison.png
+    report: outputs/reports/experiments/E16_SYNTHETIC_AUGMENTATION.md
+augmentation_model_sweep:
+  models:
+  - tier1_lightgbm
+  - catboost
+  - random_forest
+  - extra_trees
+  - hist_gradient_boosting
+  - elastic_net
+  synthetic_ratios:
+  - 0
+  - 3
+  - 10
+  - 20
+  seed_offsets:
+  - 0
+  - 100
+  - 200
+  inner_folds: 3
+  bootstrap_n: 5000
+  confidence_level: 0.95
+  fdr_alpha: 0.05
+  outputs:
+    predictions: data/processed/experiment_e17_model_sweep_predictions.parquet
+    synthetic: data/processed/experiment_e17_synthetic_pools.parquet
+    ancestry: data/processed/experiment_e17_synthetic_ancestry.parquet
+    inner_ancestry: data/processed/experiment_e17_inner_ancestry.parquet
+    inner_scores: data/processed/experiment_e17_inner_scores.parquet
+    summary: outputs/tables/experiments/e17_model_sweep_summary.csv
+    contrasts: outputs/tables/experiments/e17_model_sweep_contrasts.csv
+    doses: outputs/tables/experiments/e17_fixed_dose_summary.csv
+    selection: outputs/tables/experiments/e17_selected_settings.csv
+    counts: outputs/tables/experiments/e17_training_counts.csv
+    audit: outputs/tables/experiments/e17_generation_audit.csv
+    stability: outputs/tables/experiments/e17_seed_stability.csv
+    leakage: outputs/tables/experiments/e17_leakage_probe.csv
+    figure: outputs/figures/e17_model_sweep.png
+    dose_figure: outputs/figures/e17_dose_response.png
+    report: outputs/reports/experiments/E17_LARGER_AUGMENTATION_MULTI_MODEL.md
+physiological_simulation:
+  models:
+  - tier1_lightgbm
+  - catboost
+  - elastic_net
+  synthetic_ratios:
+  - 0
+  - 1
+  - 3
+  - 10
+  seed_offsets:
+  - 0
+  - 100
+  - 200
+  inner_folds: 3
+  hr_time_constant_s: 45
+  load_elasticity: 0.5
+  drift_start_s: 900
+  trend_window_s: 300
+  residual_block_s: 300
+  speed_scale_bounds:
+  - 0.97
+  - 1.03
+  hr_baseline_scale_bounds:
+  - 0.99
+  - 1.01
+  drift_scale_bounds:
+  - 0.9
+  - 1.1
+  residual_scale_bounds:
+  - 0.9
+  - 1.1
+  max_parent_hr_rmse_bpm: 8
+  max_hr_fraction_asof: 1.05
+  max_hr_rate_bpm_s: 2
+  max_speed_acceleration_ms2: 0.15
+  max_attempt_multiplier: 30
+  minimum_parent_athletes: 20
+  example_streams_per_pool: 3
+  bootstrap_n: 5000
+  confidence_level: 0.95
+  fdr_alpha: 0.05
+  outputs:
+    predictions: data/processed/experiment_e18_physiology_predictions.parquet
+    synthetic: data/processed/experiment_e18_physiology_training.parquet
+    ancestry: data/processed/experiment_e18_physiology_ancestry.parquet
+    examples: data/processed/experiment_e18_physiology_examples.parquet
+    inner_ancestry: data/processed/experiment_e18_physiology_inner_ancestry.parquet
+    inner_scores: data/processed/experiment_e18_physiology_inner_scores.parquet
+    parent_fit: outputs/tables/experiments/e18_parent_fit.csv
+    temporal_diagnostics: outputs/tables/experiments/e18_temporal_diagnostics.csv
+    summary: outputs/tables/experiments/e18_physiology_summary.csv
+    contrasts: outputs/tables/experiments/e18_physiology_contrasts.csv
+    doses: outputs/tables/experiments/e18_physiology_doses.csv
+    selection: outputs/tables/experiments/e18_physiology_selection.csv
+    audit: outputs/tables/experiments/e18_physiology_audit.csv
+    stability: outputs/tables/experiments/e18_physiology_seed_stability.csv
+    leakage: outputs/tables/experiments/e18_physiology_leakage.csv
+    figure: outputs/figures/e18_physiology_comparison.png
+    stream_figure: outputs/figures/e18_physiology_trajectories.png
+    report: outputs/reports/experiments/E18_PHYSIOLOGY_CONSTRAINED_SIMULATION.md
+physiological_large_dose:
+  synthetic_ratios:
+  - 0
+  - 10
+  - 30
+  - 50
+  reused_seed_offsets:
+  - 0
+  - 100
+  - 200
+  additional_seed_offset: 300
+  outputs:
+    directory: data/processed/e18_large_dose
+    predictions: data/processed/experiment_e18_large_predictions.parquet
+    summary: outputs/tables/experiments/e18_large_summary.csv
+    contrasts: outputs/tables/experiments/e18_large_contrasts.csv
+    audit: outputs/tables/experiments/e18_large_audit.csv
+    leakage: outputs/tables/experiments/e18_large_leakage.csv
+    figure: outputs/figures/e18_large_dose.png
+    report: outputs/reports/experiments/E18_LARGE_DOSE_EXTENSION.md
+next_run_prediction:
+  target: target_magnitude
+  models:
+  - elastic_net
+  - tier1_lightgbm
+  - catboost
+  feature_arms:
+  - previous_only
+  - history_combined
+  primary_model: elastic_net_history_combined
+  minimum_prior_sessions: 1
+  recent_sessions: 3
+  shrinkage_strength: 3.0
+  prior_outcomes:
+  - target_magnitude
+  - target_drift
+  - target_retention
+  bootstrap_n: 5000
+  confidence_level: 0.95
+  fdr_alpha: 0.05
+  outputs:
+    examples: data/processed/experiment_e19_next_run_examples.parquet
+    predictions: data/processed/experiment_e19_next_run_predictions.parquet
+    manifest: outputs/tables/experiments/e19_feature_manifest.csv
+    summary: outputs/tables/experiments/e19_next_run_summary.csv
+    contrasts: outputs/tables/experiments/e19_next_run_contrasts.csv
+    leakage: outputs/tables/experiments/e19_next_run_leakage.csv
+    audit: outputs/tables/experiments/e19_temporal_audit.csv
+    folds: outputs/tables/experiments/e19_fold_counts.csv
+    figure: outputs/figures/e19_next_run_prediction.png
+    report: outputs/reports/experiments/E19_NEXT_RUN_PREDICTION.md
+deep_trajectory_augmentation:
+  models:
+  - tier2_tcn
+  - tier2_lstm
+  - tier2_patchtst
+  - tier2_itransformer
+  primary_model: tier2_tcn
+  synthetic_ratio: 10
+  generation_seed_offset: 0
+  training_seed_offsets:
+  - 0
+  - 100
+  - 200
+  epochs: 20
+  inference_batch_size: 256
+  max_early_missing_fraction: 0.02
+  bootstrap_n: 5000
+  confidence_level: 0.95
+  fdr_alpha: 0.05
+  replay_progress_every: 5000
+  outputs:
+    directory: data/processed/e20_deep_trajectory
+    real_sequences: data/processed/experiment_e20_real_sequences.parquet
+    predictions: data/processed/experiment_e20_deep_predictions.parquet
+    shuffled_predictions: data/processed/experiment_e20_shuffled_predictions.parquet
+    summary: outputs/tables/experiments/e20_deep_summary.csv
+    contrasts: outputs/tables/experiments/e20_deep_contrasts.csv
+    stability: outputs/tables/experiments/e20_seed_stability.csv
+    audit: outputs/tables/experiments/e20_replay_audit.csv
+    training: outputs/tables/experiments/e20_training_history.csv
+    leakage: outputs/tables/experiments/e20_leakage.csv
+    figure: outputs/figures/e20_deep_augmentation.png
+    report: outputs/reports/experiments/E20_DEEP_TRAJECTORY_AUGMENTATION.md
+    deck: outputs/reports/durability_model_results_en_with_thai_notes.pptx
+    speaker_script: outputs/reports/durability_speaker_script_th_updated.md
+    log: outputs/reports/experiments/e20_run.log
+physiology_history_features:
+  models:
+  - elastic_net
+  - tier1_lightgbm
+  - catboost
+  arms:
+  - base
+  - trimp
+  - trimp_decay
+  - monotony
+  - spike
+  - combined
+  primary_model: elastic_net_trimp_decay
+  zone_edges:
+  - 0.5
+  - 0.6
+  - 0.7
+  - 0.8
+  - 0.9
+  - 1.0
+  zone_weights:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  history_days:
+  - 7
+  - 28
+  decay_days:
+  - 7
+  - 42
+  monotony_days: 7
+  spike_days: 30
+  min_hr_coverage: 0.95
+  progress_every: 5000
+  bootstrap_n: 5000
+  confidence_level: 0.95
+  fdr_alpha: 0.05
+  outputs:
+    directory: data/processed/e21_physiology_features
+    examples: data/processed/experiment_e21_examples.parquet
+    predictions: data/processed/experiment_e21_predictions.parquet
+    shuffled_predictions: data/processed/experiment_e21_shuffled_predictions.parquet
+    summary: outputs/tables/experiments/e21_summary.csv
+    contrasts: outputs/tables/experiments/e21_contrasts.csv
+    leakage: outputs/tables/experiments/e21_leakage.csv
+    manifest: outputs/tables/experiments/e21_feature_manifest.csv
+    audit: outputs/tables/experiments/e21_temporal_audit.csv
+    sources: outputs/tables/experiments/e21_source_hashes.csv
+    figure: outputs/figures/e21_feature_ablation.png
+    report: outputs/reports/experiments/E21_PHYSIOLOGY_HISTORY_FEATURES.md
+    log: outputs/reports/experiments/e21_run.log
+ambient_weather:
+  source_url: https://power.larc.nasa.gov/api/temporal/hourly/point
+  parameters:
+    T2M: temperature_c
+    RH2M: humidity_pct
+    T2MDEW: dewpoint_c
+    WS2M: wind_ms
+  community: RE
+  fill_value: -999.0
+  grid_lat_deg: 0.5
+  grid_lon_deg: 0.625
+  max_years_per_request: 4
+  request_workers: 4
+  request_timeout_s: 120
+  request_retries: 5
+  session_mean_step_min: 10
+  reference_temperature_c: 15.0
+  temperature_bands_c:
+  - -50
+  - 5
+  - 10
+  - 15
+  - 20
+  - 25
+  - 60
+  indices:
+  - drift
+  - magnitude
+  - retention
+  - cs_shift
+  - onset
+  slope_per_c: 10
+  bootstrap_n_association: 2000
+  bootstrap_n_prediction: 5000
+  confidence_level: 0.95
+  fdr_alpha: 0.05
+  models:
+  - elastic_net
+  - tier1_lightgbm
+  - catboost
+  arms:
+  - base
+  - weather_prev
+  - weather_target
+  targets:
+  - target_drift
+  - target_magnitude
+  primary_target: target_drift
+  primary_candidate: elastic_net_weather_prev
+  outputs:
+    cache_dir: data/interim/weather_power
+    locations: data/interim/weather_session_locations.parquet
+    session_weather: data/processed/experiment_e22_session_weather.parquet
+    examples: data/processed/experiment_e22_examples.parquet
+    predictions: data/processed/experiment_e22_predictions.parquet
+    shuffled_predictions: data/processed/experiment_e22_shuffled_predictions.parquet
+    association: outputs/tables/experiments/e22_association.csv
+    gate_bands: outputs/tables/experiments/e22_gate_by_temperature.csv
+    reliability: outputs/tables/experiments/e22_conditional_reliability.csv
+    summary: outputs/tables/experiments/e22_summary.csv
+    contrasts: outputs/tables/experiments/e22_contrasts.csv
+    leakage: outputs/tables/experiments/e22_leakage.csv
+    audit: outputs/tables/experiments/e22_audit.csv
+    sources: outputs/tables/experiments/e22_source_hashes.csv
+    figure_association: outputs/figures/e22_weather_association.png
+    figure_prediction: outputs/figures/e22_weather_prediction.png
+    report: outputs/reports/experiments/E22_AMBIENT_WEATHER.md
+    log: outputs/reports/experiments/e22_run.log
+hrmax_correction:
+  sustain_s: 60
+  min_supporting_activities: 3
+  models:
+  - elastic_net
+  - tier1_lightgbm
+  - catboost
+  arms:
+  - base
+  - trimp_decay
+  - combined
+  primary_candidate: elastic_net_trimp_decay
+  bootstrap_n: 5000
+  confidence_level: 0.95
+  fdr_alpha: 0.05
+  outputs:
+    peaks: data/interim/hrmax_activity_peaks.parquet
+    hrmax: data/processed/experiment_e24_hrmax.parquet
+    examples: data/processed/experiment_e24_examples.parquet
+    summary: outputs/tables/experiments/e24_summary.csv
+    contrasts: outputs/tables/experiments/e24_contrasts.csv
+    leakage: outputs/tables/experiments/e24_leakage.csv
+    changed_features: outputs/tables/experiments/e24_changed_features.csv
+    sources: outputs/tables/experiments/e24_source_hashes.csv
+    figure: outputs/figures/e24_hrmax_correction.png
+    report: outputs/reports/experiments/E24_HRMAX_CORRECTION.md
+    log: outputs/reports/experiments/e24_run.log
+methods_audit:
+  global_fdr_alpha: 0.05
+  margin_indices:
+  - magnitude
+  - drift
+  outputs:
+    gate_reliability: outputs/tables/experiments/audit_gate_reliability.csv
+    probe_signal: outputs/tables/experiments/audit_signal_beyond_athlete.csv
+    global_fdr: outputs/tables/experiments/audit_global_fdr.csv
+    noise_ceiling: outputs/tables/experiments/audit_noise_ceiling.csv
+    coupling: outputs/tables/experiments/audit_label_feature_coupling.csv
+quality_v2:
+  tiers:
+    Q0:
+      max_gap_speed_cv: 0.15
+      exclude_gap_split: false
+      max_clipped_gradient_fraction: 1.0
+    Q1:
+      max_gap_speed_cv: 0.12
+      exclude_gap_split: true
+      max_clipped_gradient_fraction: 1.0
+    Q2:
+      max_gap_speed_cv: 0.1
+      exclude_gap_split: true
+      max_clipped_gradient_fraction: 1.0
+    Q3:
+      max_gap_speed_cv: 0.08
+      exclude_gap_split: true
+      max_clipped_gradient_fraction: 0.01
+  target: target_magnitude
+  icc_indices:
+  - magnitude
+  - drift
+  icc_reproduction_tol: 0.02
+  primary_tier: Q2
+  shrinkage_strength: 3.0
+  prior_outcomes:
+  - target_magnitude
+  - target_drift
+  - target_retention
+  bootstrap_n: 5000
+  confidence_level: 0.95
+  fdr_alpha: 0.05
+  outputs:
+    icc: outputs/tables/experiments/e15v2_tier_icc.csv
+    predictions: data/processed/experiment_e15v2_predictions.parquet
+    summary: outputs/tables/experiments/e15v2_summary.csv
+    contrasts: outputs/tables/experiments/e15v2_contrasts.csv
+    leakage: outputs/tables/experiments/e15v2_leakage.csv
+    tiers: outputs/tables/experiments/e15v2_tier_counts.csv
+    figure: outputs/figures/e15v2_quality_dose_response.png
+    report: outputs/reports/experiments/E15V2_QUALITY_DOSE_RESPONSE.md
+    log: outputs/reports/experiments/e15v2_run.log
+hybrid_deep:
+  targets:
+  - target_drift
+  - target_magnitude
+  primary_target: target_drift
+  primary_tier: Q1
+  report_tiers:
+  - Q0
+  - Q1
+  models:
+  - tcn_seq
+  - tcn_hybrid
+  - lstm_hybrid
+  - tcn_residual
+  - lstm_residual
+  - tcn_hybrid_aug
+  hidden_grid:
+  - 32
+  - 64
+  tab_hidden: 64
+  dropout: 0.2
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  batch_size: 128
+  max_epochs: 60
+  patience: 8
+  val_athlete_frac: 0.2
+  n_seeds: 5
+  aug_jitter_sd: 0.05
+  aug_mask_frac: 0.1
+  shrinkage_strength: 3.0
+  prior_outcomes:
+  - target_magnitude
+  - target_drift
+  - target_retention
+  bootstrap_n: 5000
+  confidence_level: 0.95
+  fdr_alpha: 0.05
+  outputs:
+    predictions: data/processed/experiment_e27_predictions.parquet
+    summary: outputs/tables/experiments/e27_summary.csv
+    contrasts: outputs/tables/experiments/e27_contrasts.csv
+    leakage: outputs/tables/experiments/e27_leakage.csv
+    training: outputs/tables/experiments/e27_training.csv
+    figure: outputs/figures/e27_hybrid_deep.png
+    report: outputs/reports/experiments/E27_HYBRID_DEEP.md
+    log: outputs/reports/experiments/e27_run.log
+coros_case_study:
+  raw_dir: ''
+  athlete_id: ''
+  fit_running_sport: running
+  exclude_sub_sports:
+  - indoor_running
+  - treadmill
+  semicircle_to_deg: 8.381903171539307e-08
+  arms:
+  - native_1hz
+  - fitrec_500
+  fitrec_points: 500
+  device_distance_check_tol: 0.05
+  min_sessions_matched: 3
+  bootstrap_n: 2000
+  fitrec_reference_table: outputs/tables/reliability.csv
+  outputs:
+    sessions: data/processed/experiment_e25_coros_sessions.parquet
+    summary: outputs/tables/experiments/e25_coros_summary.csv
+    sampling: outputs/tables/experiments/e25_coros_sampling_sensitivity.csv
+    repeatability: outputs/tables/experiments/e25_coros_repeatability.csv
+    waterfall: outputs/tables/experiments/e25_coros_waterfall.csv
+    figure: outputs/figures/e25_coros_case_study.png
+    report: outputs/reports/experiments/E25_COROS_CASE_STUDY.md
+    log: outputs/reports/experiments/e25_run.log
+  transfer_outputs:
+    predictions: data/processed/experiment_e25_transfer_predictions.parquet
+    features: data/processed/experiment_e25_transfer_features.parquet
+    summary: outputs/tables/experiments/e25_transfer_summary.csv
+rich_early:
+  targets:
+  - target_drift
+  - target_magnitude
+  holdout_folds:
+  - 3
+  - 4
+  report_tiers:
+  - Q0
+  - Q1
+  label_clip:
+    drift:
+    - -60.0
+    - 100.0
+    magnitude:
+    - 0.7
+    - 1.8
+  segment_fracs:
+  - 0.32
+  fixed_window_min: 18.0
+  min_window_points: 20
+  min_slope_points: 5
+  min_regression_points: 10
+  checkpoints_min:
+  - 5
+  - 10
+  - 15
+  warmup_min: 3.0
+  hr_zone_fracs:
+  - 0.85
+  - 0.9
+  history:
+    load_windows_days:
+    - 7
+    - 28
+    - 90
+    steady_max_gap_speed_cv: 0.15
+    steady_min_duration_s: 1800
+    ewm_halflife_sessions: 5
+    recent_sessions: 3
+    min_context_sessions: 3
+    kernel_bandwidth:
+      log_duration: 0.25
+      external_load: 0.08
+      abs_gradient: 0.02
+    min_duration_slope_range: 0.2
+  shrinkage_strength: 3.0
+  huber_quantile: 0.9
+  bag_seeds: 5
+  lightgbm:
+    n_estimators: 800
+    learning_rate: 0.015
+    num_leaves: 8
+    min_child_samples: 30
+    subsample: 0.7
+    subsample_freq: 1
+    colsample_bytree: 0.4
+    reg_lambda: 5.0
+  duration_only_trees: 200
+  lab_reference_r2:
+    target_drift: 0.3564
+    target_magnitude: 0.153
+  reproduction_tol: 0.01
+  audit_runs: 300
+  bootstrap_n: 5000
+  confidence_level: 0.95
+  fdr_alpha: 0.05
+  outputs:
+    session_features: data/processed/experiment_e28_session_features.parquet
+    history: data/processed/experiment_e28_history.parquet
+    predictions: data/processed/experiment_e28_predictions.parquet
+    summary: outputs/tables/experiments/e28_summary.csv
+    contrasts: outputs/tables/experiments/e28_contrasts.csv
+    leakage: outputs/tables/experiments/e28_leakage.csv
+    audit: outputs/tables/experiments/e28_audit.csv
+    figure: outputs/figures/e28_rich_early.png
+    report: outputs/reports/experiments/E28_RICH_EARLY.md
+    log: outputs/reports/experiments/e28_run.log
+runner_state:
+  targets:
+  - target_drift
+  - target_magnitude
+  holdout_folds:
+  - 3
+  - 4
+  state_columns:
+  - f_dec_ref
+  - f_hr_core
+  - f_hr_a
+  - f_drift_same
+  - f_drift_core
+  - f_hr_time_adj
+  - f_hr_speed_gain
+  - f_ext_mean
+  - f_mag_c
+  - f_mag_b
+  - f_hr_res_sd
+  - f_warm_rise
+  - f_dec_slope
+  - f_ext_slope
+  - f_hr_5m
+  - f_hr_10m
+  state:
+    min_prior: 3
+    bandwidth_external: 0.08
+    bandwidth_log_duration: 0.3
+  encoder:
+    sequence_length: 96
+    min_duration_s: 2400
+    gradient_clip: 0.3
+    hidden: 64
+    dilations:
+    - 1
+    - 2
+    - 4
+    - 8
+    kernel: 5
+    head: 128
+    dropout: 0.1
+    learning_rate: 0.002
+    weight_decay: 0.001
+    batch_size: 256
+    max_epochs: 25
+    patience: 4
+    val_athlete_frac: 0.1
+    huber_delta: 1.5
+    retention_clip:
+    - 0.7
+    - 1.3
+    aux_fracs:
+    - 0.5
+    - 0.6
+    - 0.7
+    - 0.8
+    - 0.9
+    aux_halfwidth: 0.05
+    inference_batch: 2048
+  residual:
+    ewm_halflife_sessions: 5
+    shrink: 5.0
+  model:
+    bag_seeds: 5
+    huber_quantile: 0.9
+    guard_quantiles:
+    - 0.001
+    - 0.999
+    lightgbm:
+      n_estimators: 500
+      learning_rate: 0.015
+      num_leaves: 8
+      min_child_samples: 30
+      subsample: 0.7
+      subsample_freq: 1
+      colsample_bytree: 0.4
+      reg_lambda: 5.0
+      linear_tree: true
+      linear_lambda: 5.0
+  lab_reference_r2:
+    target_drift: 0.3817
+    target_magnitude: 0.1873
+  reproduction_tol: 0.015
+  audit_runs: 300
+  bootstrap_n: 5000
+  confidence_level: 0.95
+  fdr_alpha: 0.05
+  run_cap_per_athlete: 20
+  learning_curve:
+    n_folds: 5
+    fractions:
+    - 0.0
+    - 0.25
+    - 0.5
+    - 1.0
+  goldencheetah:
+    osf_node: 6hfpz
+    raw_dir: data/raw/goldencheetah/holdout_2000
+    seen_list: data/raw/goldencheetah/seen_athletes.txt
+    manifest: data/raw/goldencheetah/holdout_2000_manifest.csv
+    n_athletes: 2000
+    max_zip_bytes: 150000000
+    download_workers: 6
+    download_retries: 6
+    download_timeout_s: 120
+    max_download_failure_frac: 0.01
+    process_workers: 8
+    hr_valid_range:
+    - 30
+    - 240
+    min_altitude_coverage: 0.95
+    min_altitude_sd_m: 0.5
+    time_match_hours: 15
+  outputs:
+    work_dir: data/processed/e29
+    predictions: data/processed/experiment_e29_predictions.parquet
+    summary: outputs/tables/experiments/e29_summary.csv
+    contrasts: outputs/tables/experiments/e29_contrasts.csv
+    leakage: outputs/tables/experiments/e29_leakage.csv
+    audit: outputs/tables/experiments/e29_audit.csv
+    cohort: outputs/tables/experiments/e29_holdout_cohort.csv
+    learning_curve: outputs/tables/experiments/e29_learning_curve.csv
+    first_run_dir: data/processed/e29/v1_300
+    figure: outputs/figures/e29_runner_state.png
+    report: outputs/reports/experiments/E29_RUNNER_STATE.md
+    log: outputs/reports/experiments/e29_run.log
+sanity_floor:
+  min_running_activities_45min: 3000
+  min_athletes: 200
+meet_live_bridge:
+  host: 127.0.0.1
+  port: 8765
+  connection_file: outputs/meet_live_bridge/connection.json
+  extension_dir: tools/meet_live_bridge/extension
+  max_events: 2000
+  max_text_chars: 12000
+  max_body_bytes: 65536
+  max_utterance_id_chars: 128
+  max_wait_s: 25
+  lease_s: 60
+  poll_ms: 1000
+  heartbeat_ms: 15000
+  request_timeout_ms: 5000
+  dashboard_poll_ms: 2000
+  caption_selectors:
+  - '[jsname="tgaKEf"]'
+  - .a4cQT
+combined_training:
+  train_work_dirs:
+  - data/processed/e29
+  - data/processed/e29/v1_300
+  train_run_cap: 100000
+  report_run_cap: 20
+  bootstrap_n: 5000
+  confidence_level: 0.95
+  fdr_alpha: 0.05
+  holdout:
+    raw_dir: data/raw/goldencheetah/holdout_e30
+    manifest: data/raw/goldencheetah/holdout_e30_manifest.csv
+    n_athletes: 100000
+  outputs:
+    work_dir: data/processed/e30
+    predictions: data/processed/experiment_e30_predictions.parquet
+    summary: outputs/tables/experiments/e30_summary.csv
+    contrasts: outputs/tables/experiments/e30_contrasts.csv
+    leakage: outputs/tables/experiments/e30_leakage.csv
+    audit: outputs/tables/experiments/e30_audit.csv
+    cohort: outputs/tables/experiments/e30_holdout_cohort.csv
+    figure: outputs/figures/e30_combined_training.png
+    report: outputs/reports/experiments/E30_COMBINED_TRAINING.md
+    log: outputs/reports/experiments/e30_run.log
+encoder_ensemble:
+  run_gc_dirs:
+  - data/processed/e29
+  - data/processed/e29/v1_300
+  test_dir: data/processed/e30
+  old_encoder_train: data/processed/e30/gc_train_out.npz
+  old_encoder_test: data/processed/e30/gc_test_out.npz
+  n_folds: 5
+  encoder_hidden: 64
+  bag_seeds: 5
+  probe_bag_seeds: 3
+  bootstrap_n: 5000
+  confidence_level: 0.95
+  fdr_alpha: 0.05
+  report_run_cap: 20
+  models:
+    lgbm_big:
+      n_estimators: 1500
+      learning_rate: 0.006
+      num_leaves: 12
+      colsample_bytree: 0.3
+    lgbm_plain:
+      linear_tree: false
+      n_estimators: 800
+      learning_rate: 0.015
+      num_leaves: 16
+    xgb:
+      n_estimators: 900
+      learning_rate: 0.02
+      max_depth: 4
+      subsample: 0.7
+      colsample_bytree: 0.4
+      reg_lambda: 5
+      min_child_weight: 10
+  members:
+    tcn_xgb:
+      encoder: new
+      model: xgb
+    tcn_xgb_sqrt:
+      encoder: new
+      model: xgb
+      target: sqrt
+    tcn_big_sqrt:
+      encoder: new
+      model: lgbm_big
+      target: sqrt
+    old_lgbm_sqrt:
+      encoder: old
+      model: lgbm
+      target: sqrt
+    tcn_plain:
+      encoder: new
+      model: lgbm_plain
+    old_lgbm_log:
+      encoder: old
+      model: lgbm
+      target: log
+    old_xgb:
+      encoder: old
+      model: xgb
+  choices:
+    e31_blend:
+      target_drift:
+        tcn_xgb_sqrt: 9
+        tcn_big_sqrt: 2
+        old_lgbm_sqrt: 1
+      target_magnitude:
+        tcn_plain: 6
+        old_lgbm_log: 4
+        old_xgb: 2
+    e31_xgb:
+      target_drift:
+        tcn_xgb: 1
+      target_magnitude:
+        tcn_xgb: 1
+  deep:
+    channels: 48
+    head: 192
+    dropout: 0.25
+    block_dropout: 0.1
+    dilations:
+    - 1
+    - 2
+    - 4
+    - 8
+    kernel: 5
+    learning_rate: 0.0015
+    max_learning_rate: 0.003
+    weight_decay: 0.01
+    batch_size: 128
+    max_epochs: 60
+    patience: 10
+    huber_delta: 1.5
+    val_athlete_frac: 0.1
+    cv_seeds: 2
+    final_seeds: 4
+    quantiles: 500
+  outputs:
+    work_dir: data/processed/e31
+    predictions: data/processed/experiment_e31_predictions.parquet
+    summary: outputs/tables/experiments/e31_summary.csv
+    contrasts: outputs/tables/experiments/e31_contrasts.csv
+    leakage: outputs/tables/experiments/e31_leakage.csv
+    audit: outputs/tables/experiments/e31_audit.csv
+    development: outputs/tables/experiments/e31_development.csv
+    figure: outputs/figures/e31_encoder_ensemble.png
+    report: outputs/reports/experiments/E31_ENCODER_ENSEMBLE.md
+    log: outputs/reports/experiments/e31_run.log
+temperature_gate:
+  n_folds: 5
+  reference_c: 15.0
+  sensitivity:
+  - name: half_correction
+    strength: 0.5
+    reference_c: 15.0
+  - name: reference_10c
+    strength: 1.0
+    reference_c: 10.0
+  - name: reference_20c
+    strength: 1.0
+    reference_c: 20.0
+  fade_retention_below: 0.98
+  reliability_min_sessions: 20
+  pair_max_log_duration_gap: 0.2
+  pair_large_temperature_gap_c: 10.0
+  precision_noninferiority_margin: 0.02
+  bootstrap_n: 2000
+  confidence_level: 0.95
+  outputs:
+    bands: outputs/tables/experiments/e32_gate_by_temperature.csv
+    tests: outputs/tables/experiments/e32_tests.csv
+    reclassified: outputs/tables/experiments/e32_reclassified.csv
+    sensitivity: outputs/tables/experiments/e32_sensitivity.csv
+    figure: outputs/figures/e32_temperature_gate.png
+    report: outputs/reports/experiments/E32_TEMPERATURE_GATE.md
+    log: outputs/reports/experiments/e32_run.log
+pace_matched:
+  transition_window_points: 6
+  transition_min_points: 3
+  transition_tolerance: 0.1
+  bin_log_width: 0.1
+  min_drift_samples: 120
+  min_within_bin_time_sd_h: 0.1
+  min_magnitude_matched_samples: 18
+fit_tool:
+  fit_dir_env: DURABILITY_FIT_DIR
+  log_level_env: DURABILITY_LOG_LEVEL
+  trend_recent_runs: 5
+  trend_min_baseline_runs: 5
+  trend_change_standard_errors: 2.0
+  fitrec_gate_kappa: 0.169
+fit_demo:
+  seed: 42
+  start_date: '2026-01-05'
+  days_between_runs: 3
+  base_speed_ms: 3.2
+  hr_rest_component: 60.0
+  hr_speed_slope: 30.0
+  hr_noise_sd: 1.0
+  hr_lag_s: 45
+  speed_noise_ar1: 0.997
+  min_speed_ms: 2.3
+  max_speed_ms: 5.2
+  start_lat_deg: 0.0
+  start_lon_deg: 0.0
+  altitude_m: 10.0
+  scenarios:
+  - name: steady_a
+    minutes: 90
+    cv: 0.02
+    drift: 0.0
+    expect: no_signal
+  - name: steady_b
+    minutes: 90
+    cv: 0.02
+    drift: 0.5
+    expect: no_signal
+  - name: steady_c
+    minutes: 75
+    cv: 0.02
+    drift: 0.0
+    expect: no_signal
+  - name: uneven_pace
+    minutes: 80
+    cv: 0.28
+    drift: 5.0
+    expect: not_evaluable
+    reason: gap_speed_variability
+  - name: steady_d
+    minutes: 90
+    cv: 0.02
+    drift: 1.0
+    expect: no_signal
+  - name: steady_e
+    minutes: 80
+    cv: 0.02
+    drift: 0.5
+    expect: no_signal
+  - name: short_run
+    minutes: 30
+    cv: 0.02
+    drift: 0.0
+    expect: not_evaluable
+    reason: duration_range
+  - name: drifting_a
+    minutes: 90
+    cv: 0.02
+    drift: 12.0
+    expect: signal
+  - name: drifting_b
+    minutes: 90
+    cv: 0.02
+    drift: 14.0
+    expect: signal
+  - name: paused_run
+    minutes: 90
+    cv: 0.02
+    drift: 5.0
+    pauses_at_min:
+    - 30
+    - 60
+    pause_min: 3
+    expect: not_evaluable
+    reason: longest_gap_block
+  - name: drifting_c
+    minutes: 80
+    cv: 0.02
+    drift: 12.0
+    expect: signal
+  - name: drifting_d
+    minutes: 90
+    cv: 0.02
+    drift: 15.0
+    expect: signal
+  - name: drifting_e
+    minutes: 90
+    cv: 0.02
+    drift: 13.0
+    expect: signal

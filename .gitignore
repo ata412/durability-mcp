@@ -1,0 +1,4 @@
+*.fit
+__pycache__/
+*.egg-info/
+build/

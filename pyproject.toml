@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "durability-mcp"
+version = "0.1.0"
+description = "Local, read-only MCP tool for running durability indices from FIT files"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.13"
+dependencies = ["numpy>=2.1", "pandas>=2.2", "PyYAML>=6.0", "scipy>=1.14", "fitdecode>=0.10", "mcp>=2,<3", "rich>=13"]
+
+[project.scripts]
+durability-mcp = "durability.mcp_server:main"
+durability-mcp-demo = "durability.mcp_demo:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+durability = ["default.yaml"]
