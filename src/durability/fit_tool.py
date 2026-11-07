@@ -69,7 +69,8 @@ def analyse_records(meta: dict[str, Any], records: pd.DataFrame, config: dict[st
         return stop("not_outdoor_run")
     try:
         stream, info = process_arm(records, "native_1hz", config)
-    except (AssertionError, ValueError):
+    except (AssertionError, ValueError) as exc:
+        result["reason_detail"] = str(exc) or None
         return stop("unusable_stream")
     if float(records["heart_rate"].notna().mean()) < qc["min_hr_coverage"]:
         return stop("heart_rate_coverage")
@@ -169,5 +170,31 @@ def trend(rows: list[dict[str, Any]], config: dict[str, Any]) -> dict[str, Any]:
         "experimental_pace_matched_drift_bpm_h": compare_recent(pick("experimental_pace_matched_drift_bpm_h"), config),
         "experimental_note": "Experimental pace-matched drift did not meet all validation criteria and is not part of the gate.",
         "provenance": "MEASURED",
+        "caveat": CAVEAT,
+    }
+
+
+def expected_next(rows: list[dict[str, Any]], config: dict[str, Any]) -> dict[str, Any]:
+    """Pre-run expectation for the next evaluable run: own mean shrunk toward the FitRec population mean.
+
+    This is the baseline that no FitRec model beat before a run starts; it is not a trained model.
+    """
+    settings = config["fit_tool"]["expectation"]
+    strength = float(settings["shrinkage_strength"])
+    out: dict[str, Any] = {}
+    for key in ("drift_bpm_h", "magnitude"):
+        own = np.asarray([r[key] for r in rows if r[key] is not None], dtype=float)
+        population = float(settings["population_mean"][key])
+        if len(own) < int(settings["min_own_runs"]):
+            value, source = population, "population_mean_only"
+        else:
+            value, source = (len(own) * own.mean() + strength * population) / (len(own) + strength), "shrunk_personal_average"
+        error = float(settings["typical_error_mae_athlete"][key])
+        out[key] = {"expected": _number(value), "typical_error": _number(error), "own_runs_used": int(len(own)), "source": source}
+    return {
+        **out,
+        "method": f"Own mean shrunk toward the FitRec population mean with strength {strength:g}.",
+        "evidence": "Before a run starts, no model showed a supported gain over this baseline (FitRec, MEASURED). Typical error is equal-athlete MAE on FitRec next runs (PILOT MEASURED).",
+        "provenance": "EXPECTATION FROM OWN HISTORY, NOT A FORECAST MODEL",
         "caveat": CAVEAT,
     }

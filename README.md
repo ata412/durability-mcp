@@ -2,7 +2,7 @@
 
 A local, read-only MCP tool that summarises running durability from your own FIT files.
 
-Your files stay on your computer: the tool runs on your machine, reads one folder, and returns no GPS coordinates. It makes no prediction. This is a research measure, not a diagnosis.
+Your files stay on your computer: the tool runs on your machine, reads one folder, and returns no GPS coordinates. Its only forward estimate is a shrunk personal average for your next run, because no trained model beat that baseline before a run starts. This is a research measure, not a diagnosis.
 
 Requires [uv](https://docs.astral.sh/uv/).
 
@@ -14,7 +14,15 @@ uvx --from git+https://github.com/ata412/durability-mcp durability-mcp-demo
 
 The demo uses SYNTHETIC files whose answers were set in advance. It shows that the tool works as designed, not that it is accurate.
 
-## Use it with your own files
+## Check your own files without an AI client
+
+```bash
+uvx --from git+https://github.com/ata412/durability-mcp durability-mcp-check /path/to/your/fit/folder
+```
+
+Put the `.fit` files directly in the folder. Nothing leaves your computer. Add `--json` for machine-readable output.
+
+## Use it with an MCP client
 
 Add this to your MCP client's configuration, such as Claude Desktop:
 
@@ -37,6 +45,7 @@ Your MCP client may send tool results to its own AI service, so read its privacy
 | `list_durability_runs` | Outdoor runs with status and reason |
 | `get_durability_indices` | Drift, magnitude, onset and status for one run |
 | `get_durability_trend` | Status counts and latest runs against your own earlier runs |
+| `get_expected_next_run` | Expected drift and magnitude for your next evaluable run, with typical error |
 
 Statuses: `signal` (both gate conditions met), `no_signal` (QC passed, gate not met), `not_evaluable` (first failing QC rule given).
 

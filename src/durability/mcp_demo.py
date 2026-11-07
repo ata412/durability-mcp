@@ -41,14 +41,14 @@ def step(number: int, title: str, call: str, pause: bool) -> None:
 
 
 def banner() -> None:
-    console.print(Panel("[bold]SYNTHETIC DEMO DATA[/bold]\nGenerated running files, not a real person and not research results.\nThe server, QC and index code are the real ones. The tool makes no prediction.", style="yellow", title="Local durability tool"))
+    console.print(Panel("[bold]SYNTHETIC DEMO DATA[/bold]\nGenerated running files, not a real person and not research results.\nThe server, QC and index code are the real ones. Its only forward estimate is a shrunk personal average.", style="yellow", title="Local durability tool"))
 
 
 async def run(folder: str, scenarios: list[dict[str, Any]], pause: bool) -> None:
     params = StdioServerParameters(command=sys.executable, args=["-m", "durability.mcp_server"], env={**os.environ, "DURABILITY_FIT_DIR": folder, "DURABILITY_LOG_LEVEL": "CRITICAL"})
     by_status = {s["expect"]: s["file"] for s in reversed(scenarios)}
     async with Client(params, read_timeout_seconds=300) as client:
-        step(1, "The server offers three read-only tools", "tools/list", pause)
+        step(1, "The server offers four read-only tools", "tools/list", pause)
         table = Table(show_lines=False)
         table.add_column("Tool", style="cyan")
         table.add_column("Read-only")
@@ -87,10 +87,15 @@ async def run(folder: str, scenarios: list[dict[str, Any]], pause: bool) -> None
         console.print(f"Standard drift: earlier runs {drift['baseline_mean']} bpm/h, latest {drift['recent_mean']} bpm/h -> [bold]{drift['recent_vs_own_baseline']}[/bold]")
         console.print(f"[dim]{trend['experimental_note']}[/dim]")
 
-        step(6, "Privacy and safety checks, run live", 'get_durability_indices("../outside.fit")', pause)
+        step(6, "Expected next run: the baseline no model beat", "get_expected_next_run()", pause)
+        expected = payload(await client.call_tool("get_expected_next_run", {}))
+        console.print(expected["summary"])
+        console.print(f"[dim]{expected['evidence']}[/dim]")
+
+        step(7, "Privacy and safety checks, run live", 'get_durability_indices("../outside.fit")', pause)
         refused = await client.call_tool("get_durability_indices", {"file": "../outside.fit"})
         console.print(f"File outside the folder: [bold]{'refused' if refused.is_error else 'NOT REFUSED'}[/bold] ({refused.content[0].text})")
-        everything = json.dumps([listed, one, trend]).lower()
+        everything = json.dumps([listed, one, trend, expected]).lower()
         leaked = any(word in everything for word in ("latitude", "longitude", "position_lat"))
         console.print(f"Coordinates in any response above: [bold]{'FOUND' if leaked else 'none'}[/bold]")
     console.print()

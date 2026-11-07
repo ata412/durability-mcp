@@ -1503,6 +1503,15 @@ fit_tool:
   trend_recent_runs: 5
   trend_min_baseline_runs: 5
   trend_change_standard_errors: 2.0
+  expectation:
+    shrinkage_strength: 3.0
+    min_own_runs: 1
+    population_mean:
+      drift_bpm_h: 12.959
+      magnitude: 1.099
+    typical_error_mae_athlete:
+      drift_bpm_h: 7.023
+      magnitude: 0.047
   fitrec_gate_kappa: 0.169
 fit_demo:
   seed: 42
@@ -1592,3 +1601,14 @@ fit_demo:
     cv: 0.02
     drift: 13.0
     expect: signal
+trained_model_trial:
+  tabular_model: tier1_lightgbm
+  tabular_checkpoint: outputs/models/tier1_lightgbm_magnitude.joblib
+  sequence_model: tier2_tcn
+  sequence_checkpoint: outputs/models/tier2_tcn_multitask.pt
+  sampling_arm: native_1hz
+  targets:
+  - magnitude
+  - drift
+  private_dir: data/processed/trained_model_trial
+  report_dir: outputs/reports/trained_model_trial

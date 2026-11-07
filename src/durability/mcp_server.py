@@ -10,7 +10,7 @@ from mcp.server.mcpserver.exceptions import ToolError
 from mcp.types import ToolAnnotations
 
 from durability.config import load_config
-from durability.fit_tool import CAVEAT, FitFolder, trend
+from durability.fit_tool import CAVEAT, FitFolder, expected_next, trend
 
 READ_ONLY = ToolAnnotations(read_only_hint=True, destructive_hint=False, idempotent_hint=True, open_world_hint=False)
 
@@ -44,6 +44,14 @@ def build_server(folder: str) -> MCPServer:
         result = trend(fits.runs(start_date, end_date), config)
         counts = result["status_counts"]
         return {"summary": f"{result['runs']} outdoor runs: {counts['signal']} signal, {counts['no_signal']} no signal, {counts['not_evaluable']} not evaluable.", **result}
+
+    @server.tool(annotations=READ_ONLY)
+    def get_expected_next_run(start_date: str | None = None, end_date: str | None = None) -> dict[str, Any]:
+        """Expected drift and magnitude for the next evaluable run: own average shrunk toward the population. Not a forecast model."""
+        rows = fits.runs(start_date, end_date)
+        result = expected_next(rows, config)
+        d, m = result["drift_bpm_h"], result["magnitude"]
+        return {"summary": f"Expected next run: drift {d['expected']} bpm/h (typical error {d['typical_error']}), magnitude {m['expected']} (typical error {m['typical_error']}), from {d['own_runs_used']} own evaluable runs.", **result}
 
     return server
 
