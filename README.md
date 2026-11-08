@@ -24,7 +24,7 @@ Put the `.fit` files directly in the folder. Nothing leaves your computer. Add `
 
 ## Use it with an MCP client
 
-Add this to your MCP client's configuration, such as Claude Desktop:
+Add this to your MCP client's configuration:
 
 ```json
 {
