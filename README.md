@@ -49,6 +49,26 @@ Your MCP client may send tool results to its own AI service, so read its privacy
 
 Statuses: `signal` (both gate conditions met), `no_signal` (QC passed, gate not met), `not_evaluable` (first failing QC rule given).
 
+## Model tool (optional, research use)
+
+Install the `[models]` extra to add `get_fusion_predictions`. It runs the saved EAT fusion model (a stack of tree experts and the E31 blend, combined by an expert-attention network) on runs that pass the gate, and lists E31, the training mean and your own shrunk average beside what actually happened.
+
+```json
+{
+  "mcpServers": {
+    "durability": {
+      "command": "uvx",
+      "args": ["--from", "durability-mcp[models] @ git+https://github.com/ata412/durability-mcp", "durability-mcp"],
+      "env": {"DURABILITY_FIT_DIR": "/path/to/your/fit/folder"}
+    }
+  }
+}
+```
+
+- The models were trained on FitRec (Endomondo) and GoldenCheetah runs. FitRec is licensed for academic use only, so use these files for research and do not redistribute them.
+- On development data (MEASURED EXPLORATORY, not an independent test) EAT tied E31 on drift and reduced magnitude error by about 1.3%. On the one real watch export tested, only one run could be scored, so nothing is known about accuracy on real watch files.
+- The model libraries are large (PyTorch, LightGBM, XGBoost, CatBoost). Without the extra, the tool runs without this model tool.
+
 ## Limits
 
 - Tested on one runner's COROS export only, where most runs were not evaluable (MEASURED: 73 of 76). Other brands may behave differently.

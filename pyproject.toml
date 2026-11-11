@@ -4,13 +4,16 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "durability-mcp"
-version = "0.2.0"
+version = "0.3.0"
 description = "Local, read-only MCP tool for running durability indices from FIT files"
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
 requires-python = ">=3.13"
 dependencies = ["numpy>=2.1", "pandas>=2.2", "PyYAML>=6.0", "scipy>=1.14", "fitdecode>=0.10", "mcp>=2,<3", "rich>=13"]
+
+[project.optional-dependencies]
+models = ["torch==2.13.0", "lightgbm==4.7.0", "xgboost==3.3.0", "catboost==1.2.10", "scikit-learn==1.9.0", "joblib==1.5.3", "pyarrow>=20", "statsmodels==0.14.6", "matplotlib>=3.9"]
 
 [project.scripts]
 durability-mcp = "durability.mcp_server:main"
@@ -21,4 +24,4 @@ durability-mcp-check = "durability.fit_check:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-durability = ["default.yaml"]
+durability = ["default.yaml", "saved_models/*/*"]

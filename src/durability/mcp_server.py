@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import importlib
+import importlib.util
 import os
 from typing import Any
 
@@ -9,7 +11,7 @@ from mcp.server.mcpserver import MCPServer
 from mcp.server.mcpserver.exceptions import ToolError
 from mcp.types import ToolAnnotations
 
-from durability.config import load_config
+from durability.config import load_config, repo_path
 from durability.fit_tool import CAVEAT, FitFolder, expected_next, trend
 
 READ_ONLY = ToolAnnotations(read_only_hint=True, destructive_hint=False, idempotent_hint=True, open_world_hint=False)
@@ -53,6 +55,15 @@ def build_server(folder: str) -> MCPServer:
         d, m = result["drift_bpm_h"], result["magnitude"]
         return {"summary": f"Expected next run: drift {d['expected']} bpm/h (typical error {d['typical_error']}), magnitude {m['expected']} (typical error {m['typical_error']}), from {d['own_runs_used']} own evaluable runs.", **result}
 
+    # Model tools: added by name, only when saved models and the model libraries (the [models] extra) are present.
+    # The EAT fusion tool replaces the E31 tool when its models exist; it needs the E31 set for its inputs.
+    libraries = all(importlib.util.find_spec(name) for name in ("torch", "lightgbm", "xgboost", "catboost", "sklearn", "joblib"))
+    e31_ready = libraries and "e31_artifact" in config and (repo_path(config, config["e31_artifact"]["model_dir"]) / "trees.joblib").exists()
+    eat_dir = repo_path(config, config["eat_artifact"]["model_dir"]) if "eat_artifact" in config else None
+    if e31_ready and eat_dir is not None and (eat_dir / "experts.joblib").exists() and (eat_dir / "eat.pt").exists():
+        importlib.import_module("durability.mcp_eat").register(server, folder, config, READ_ONLY)
+    elif e31_ready:
+        importlib.import_module("durability.mcp_e31").register(server, folder, config, READ_ONLY)
     return server
 
 

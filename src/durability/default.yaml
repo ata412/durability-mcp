@@ -1602,6 +1602,7 @@ fit_demo:
     drift: 13.0
     expect: signal
 trained_model_trial:
+  progress_every: 20
   tabular_model: tier1_lightgbm
   tabular_checkpoint: outputs/models/tier1_lightgbm_magnitude.joblib
   sequence_model: tier2_tcn
@@ -1612,3 +1613,299 @@ trained_model_trial:
   - drift
   private_dir: data/processed/trained_model_trial
   report_dir: outputs/reports/trained_model_trial
+leakage_ablation:
+  model: tier1_lightgbm
+  targets:
+  - magnitude
+  - drift
+  n_folds: 5
+  bootstrap_n: 1000
+  confidence_level: 0.95
+  predictions: data/processed/experiment_e33_leakage_predictions.parquet
+  report_dir: outputs/reports/experiments/e33_leakage_ablation
+advanced_leakage_ablation:
+  work_dir: data/processed/e34_leakage
+  report_dir: outputs/reports/experiments/e34_advanced_leakage
+  choice: e31_blend
+  arms:
+  - grouped_prior
+  - activity_full_history
+  tree_seeds: 5
+  deep_seeds: 2
+  n_folds: 5
+deep_improvement_lab:
+  work_dir: data/processed/deep_improvement_lab
+  report_dir: outputs/reports/deep_improvement_lab
+  vendor_dir: tools/deep_improvement_lab/vendor
+  input_dir: data/processed/e34_leakage
+  selection_fold: 0
+  confirm_folds:
+  - 1
+  - 2
+  - 3
+  - 4
+  validation_athlete_fraction: 0.1
+  screen_seed_offsets:
+  - 0
+  confirm_seed_offsets:
+  - 0
+  - 100
+  - 200
+  foundation_estimators: 4
+  foundation_batch_size: 1
+  foundation_max_context: 2048
+  foundation_max_features: 48
+  foundation_safety_factor: 0.1
+  foundation_large_context: 6144
+  foundation_large_features: 96
+  worker_timeout_s: 600
+  targets:
+  - target_drift
+  - target_magnitude
+neural_foundation_e35:
+  report_dir: outputs/reports/experiments/E35_NEURAL_FOUNDATION
+  config_snapshot: docs/E35_CONFIG_SNAPSHOT.yaml
+  private_predictions: data/processed/experiment_e35_predictions.parquet
+deep_accuracy_followup:
+  work_dir: data/processed/deep_accuracy_followup
+  report_dir: outputs/reports/deep_accuracy_followup
+  profiles:
+    all_features:
+      context: 6144
+      features: 193
+    more_context:
+      context: 100000
+      features: 96
+  tree_weights:
+  - 0.0
+  - 0.25
+  - 0.5
+  - 0.75
+  - 1.0
+  worker_timeout_s: 600
+e31_artifact:
+  choice: e31_blend
+  model_dir: package:saved_models/e31
+  private_dir: data/processed/e31_artifact
+  report: outputs/reports/e31_artifact/REPORT.md
+  encoder_min_pearson_r: 0.95
+  tree_max_abs_diff: 1.0e-06
+  max_mae_athlete_change:
+    target_drift: 0.15
+    target_magnitude: 0.002
+  shrinkage_strength: 3.0
+eat_artifact:
+  model_dir: package:saved_models/eat
+  check_rows: 2000
+coros_profile:
+  sessions: data/processed/experiment_e25_coros_sessions.parquet
+  arm: native_1hz
+  month_min_runs: 2
+  output_dir: outputs/reports/coros_profile
+  figure: outputs/reports/coros_profile/coros_profile.png
+  report: outputs/reports/coros_profile/REPORT.md
+coros_relaxed:
+  athlete: coros_advisor
+  levels:
+    L0_production: {}
+    L1_relaxed_qc:
+      qc:
+        min_duration_min: 30
+        max_gap_speed_cv: 0.25
+      resample:
+        max_interp_gap_s: 120
+    L2_relaxed_qc_low_gate:
+      qc:
+        min_duration_min: 30
+        max_gap_speed_cv: 0.25
+      resample:
+        max_interp_gap_s: 120
+      gate:
+        drift_bpm_per_h: 1.0
+        magnitude: 1.02
+    L3_relaxed_qc_no_gate:
+      qc:
+        min_duration_min: 30
+        max_gap_speed_cv: 0.25
+      resample:
+        max_interp_gap_s: 120
+      gate:
+        drift_bpm_per_h: -1000000000.0
+        magnitude: -1000000000.0
+  criterion:
+    min_scored: 10
+    rule: E31 MAE lower than BOTH training mean and own shrunk history
+  private_table: data/processed/e31_artifact/coros_relaxed_runs.parquet
+  report: outputs/reports/e31_artifact/RELAXED.md
+neural_calibration_lab:
+  report_dir: outputs/reports/neural_calibration_lab
+  work_dir: data/processed/neural_calibration_lab
+  tree_weights:
+  - 0.0
+  - 0.25
+  - 0.5
+  - 0.75
+  - 1.0
+  slopes:
+  - 0.7
+  - 0.85
+  - 1.0
+  - 1.15
+  calibration_folds: 3
+neural_residual_lab:
+  work_dir: data/processed/neural_residual_lab
+  report_dir: outputs/reports/neural_residual_lab
+  ridge_alpha: 100.0
+  inner_folds: 3
+  context: 100000
+  features: 96
+  tree_weights:
+  - 0.0
+  - 0.25
+  - 0.5
+  - 0.75
+  - 1.0
+  worker_timeout_s: 900
+tree_deep_fusion:
+  work_dir: data/processed/tree_deep_fusion
+  report_dir: outputs/reports/tree_deep_fusion
+  inner_folds: 3
+  folds:
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+  validation_fraction: 0.15
+  hidden: 128
+  dropout: 0.15
+  epochs: 160
+  patience: 20
+  batch_size: 512
+  learning_rate: 0.001
+  weight_decay: 0.01
+  residual_penalty: 0.02
+  lgbm:
+    n_estimators: 400
+    learning_rate: 0.025
+    num_leaves: 15
+    min_child_samples: 30
+    colsample_bytree: 0.8
+  xgb:
+    n_estimators: 400
+    learning_rate: 0.025
+    max_depth: 4
+    min_child_weight: 10
+    subsample: 0.8
+    colsample_bytree: 0.8
+    reg_lambda: 5
+  extra:
+    n_estimators: 200
+    min_samples_leaf: 10
+    max_features: 0.8
+  artifact_parity_atol: 0.0001
+  artifact_parity_rtol: 1.0e-05
+  artifact_parity_rows: 16
+tree_deep_fusion_leaky:
+  work_dir: data/processed/tree_deep_fusion_leaky
+  report_dir: outputs/reports/tree_deep_fusion_leaky
+tree_deep_fusion_v2:
+  work_dir: data/processed/tree_deep_fusion_v2
+  report_dir: outputs/reports/tree_deep_fusion_v2
+  selection_fold: 0
+  confirm_folds:
+  - 1
+  - 2
+  - 3
+  - 4
+  seeds:
+  - 0
+  - 100
+  - 200
+  lgbm_huber:
+    n_estimators: 600
+    learning_rate: 0.02
+    num_leaves: 15
+    min_child_samples: 40
+    colsample_bytree: 0.7
+    subsample: 0.8
+    subsample_freq: 1
+    reg_lambda: 5
+  huber_alpha: 0.9
+  catboost:
+    iterations: 800
+    learning_rate: 0.04
+    depth: 6
+    l2_leaf_reg: 6
+  net:
+    hidden: 64
+    dropout: 0.3
+    learning_rate: 0.0003
+    weight_decay: 0.05
+    patience: 40
+    epochs: 300
+    batch_size: 512
+    residual_penalty: 0.1
+tree_deep_fusion_v2_leaky:
+  work_dir: data/processed/tree_deep_fusion_v2_leaky
+  report_dir: outputs/reports/tree_deep_fusion_v2_leaky
+  knn_neighbors:
+  - 3
+  - 10
+tree_deep_fusion_v3:
+  work_dir: data/processed/tree_deep_fusion_v3
+  report_dir: outputs/reports/tree_deep_fusion_v3
+  bags: 5
+  ema_decay: 0.99
+  huber_delta: 1.0
+  net:
+    hidden: 64
+    dropout: 0.3
+    learning_rate: 0.0001
+    weight_decay: 0.05
+    patience: 30
+    epochs: 400
+    batch_size: 256
+    residual_penalty: 0.1
+  variants:
+  - resnet_bag
+  - resnet_bag_huber
+  - gate_res_bag
+  - gate_only_bag
+tree_deep_fusion_v4:
+  work_dir: data/processed/tree_deep_fusion_v4
+  report_dir: outputs/reports/tree_deep_fusion_v4
+  member_seeds: 3
+  feature_groups: 16
+  bags: 5
+  ema_decay: 0.99
+  net:
+    d_model: 32
+    heads: 4
+    layers: 2
+    ff: 64
+    dropout: 0.2
+    learning_rate: 0.0003
+    weight_decay: 0.05
+    patience: 30
+    epochs: 300
+    batch_size: 256
+    residual_penalty: 0.1
+tree_deep_fusion_v4_leaky:
+  work_dir: data/processed/tree_deep_fusion_v4_leaky
+  report_dir: outputs/reports/tree_deep_fusion_v4_leaky
+tree_deep_fusion_v5_weather:
+  work_dir: data/processed/tree_deep_fusion_v5_weather
+  report_dir: outputs/reports/tree_deep_fusion_v5_weather
+  weather_columns:
+  - start_temperature_c
+  - start_humidity_pct
+  - start_dewpoint_c
+  - start_wind_ms
+early_window_start_ablation:
+  start_frac: 0.12
+  end_frac: 0.4
+  reproduce_check_n: 50
+  reproduce_tolerance: 1.0e-09
+  work_dir: data/processed/early_window_start_ablation
+  report_dir: outputs/reports/early_window_start_ablation

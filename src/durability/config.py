@@ -17,5 +17,7 @@ def load_config(path: str | Path | None = None) -> dict[str, Any]:
 
 
 def repo_path(config: dict[str, Any], value: str) -> Path:
+    if str(value).startswith("package:"):
+        return Path(str(resources.files("durability").joinpath(str(value)[len("package:"):])))
     path = Path(value)
     return path if path.is_absolute() else Path(config["_repo_root"]) / path
