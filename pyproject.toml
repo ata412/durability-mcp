@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "durability-mcp"
-version = "0.3.0"
+version = "0.3.1"
 description = "Local, read-only MCP tool for running durability indices from FIT files"
 readme = "README.md"
 license = "MIT"
@@ -19,6 +19,7 @@ models = ["torch==2.13.0", "lightgbm==4.7.0", "xgboost==3.3.0", "catboost==1.2.1
 durability-mcp = "durability.mcp_server:main"
 durability-mcp-demo = "durability.mcp_demo:main"
 durability-mcp-check = "durability.fit_check:main"
+durability-mcp-selftest = "durability.mcp_selftest:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
